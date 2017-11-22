@@ -18,7 +18,7 @@ Redmine::Plugin.register :appmenuadds do
   require 'menutab'
    
 if Menutab.table_exists? then
-  menulist = Menutab.find(:all, :order => :position)
+  menulist = Menutab.order("position")
   menulist.each {|menutab|
     if menutab.wiki_type == 'custom' then
       Redmine::MenuManager.map(:application_menu).push menutab.label.to_sym, { :controller => 'menutabs', :action => 'view', :id => menutab.id},

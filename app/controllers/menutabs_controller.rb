@@ -9,14 +9,15 @@ class MenutabsController < ApplicationController
     end
 
     def list
-       @menutab_pages, @menutabs = paginate :menutabs, :per_page => 25, :order => "position"
+    	#, :per_page => 25
+      @menutab_pages, @menutabs = paginate Menutab.order("position"), :per_page => 25
       render :action => "list", :layout => false if request.xhr?
     end
 
     def update
       @menutab = Menutab.find(params[:id])
       Redmine::MenuManager.map(:application_menu).delete(@menutab.label.to_sym) if Redmine::MenuManager.map(:application_menu).exists?(@menutab.label.to_sym)     
-      if @menutab.update_attributes(params[:menutab])
+      if @menutab.update(params.require(:menutab).permit(:wiki_type, :user_id, :project_id, :label, :external_link, :wiki_page, :content_page, :description, :project_id))
         add_tab_menu(@menutab)
         flash[:notice] = l(:notice_successful_update)
         redirect_to :action => 'list'
@@ -28,9 +29,10 @@ class MenutabsController < ApplicationController
 
   def add
     @type_wiki = params[:type_wiki]
-    @menutab = Menutab.new(params[:menutab])
-    
+    @menutab = Menutab.new
+
     if request.post?
+    	@menutab = Menutab.new(params.require(:menutab).permit(:wiki_type, :user_id, :project_id, :label, :external_link, :wiki_page, :content_page, :description, :project_id))
       if @menutab.save then
       	add_tab_menu(@menutab)
         flash[:notice] = l(:notice_successful_create)
@@ -41,11 +43,11 @@ class MenutabsController < ApplicationController
 
   def edit
     Redmine::MenuManager.map(:application_menu).delete(@menutab.label.to_sym) if Redmine::MenuManager.map(:application_menu).exists?(@menutab.label.to_sym)
-    if request.put? and @menutab.update_attributes(params[:menutab])
-      flash[:notice] = l(:notice_successful_update)
-      add_tab_menu(@menutab)
-      redirect_to :controller => 'menutabs', :action => 'list'
-    end
+    #if request.put? and @menutab.update_attributes(params[:menutab])
+    #  flash[:notice] = l(:notice_successful_update)
+    #  add_tab_menu(@menutab)
+    #  redirect_to :controller => 'menutabs', :action => 'list'
+    #end
   end
   
   def view
