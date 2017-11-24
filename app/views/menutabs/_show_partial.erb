@@ -1,0 +1,36 @@
+<script>
+  (function() {
+    document.onreadystatechange = () => {
+      if(document.readyState === 'complete') {
+
+        //creates a item list
+        var items = '<ul>';
+        <% menulist.each do |menuitem|%>
+          <% if(menuitem.wiki_type == 'custom')  %>
+            items = items.concat('<li><a href="/menutabs/view/<%= menuitem.id %>"><%= menuitem.label %></a></li>');
+          <% end %>
+
+          <% if(menuitem.wiki_type == 'project')  %>
+            items = items.concat('<li><a href="/projects/<%= menuitem.project_id %>/<%= menuitem.wiki_page %>"><%= menuitem.label %></a></li>');
+          <% end %>
+
+          <% if(menuitem.wiki_type == 'external')  %>
+            items = items.concat('<li><a href="/menutabs/external_page?external_link=<%= menuitem.external_link %>"><%= menuitem.label %></a></li>');
+          <% end %>
+
+        <% end %>
+        items = items.concat('</ul>')
+        
+        //creates a div[id=main-menu]
+        var mainMenu = document.createElement("div");
+        mainMenu.setAttribute('id','main-menu');
+        mainMenu.innerHTML = items;
+
+        //if main-menu does not exist by default, add custom main-menu
+        if(document.getElementById('main-menu') == null){
+          document.getElementById('header').append(mainMenu);
+        }
+      }
+    }
+  })();
+</script>

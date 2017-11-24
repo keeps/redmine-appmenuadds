@@ -9,16 +9,15 @@ class MenutabsController < ApplicationController
     end
 
     def list
-    	#, :per_page => 25
       @menutab_pages, @menutabs = paginate Menutab.order("position"), :per_page => 25
       render :action => "list", :layout => false if request.xhr?
     end
 
     def update
       @menutab = Menutab.find(params[:id])
-      Redmine::MenuManager.map(:application_menu).delete(@menutab.label.to_sym) if Redmine::MenuManager.map(:application_menu).exists?(@menutab.label.to_sym)     
-      if @menutab.update(params.require(:menutab).permit(:wiki_type, :user_id, :project_id, :label, :external_link, :wiki_page, :content_page, :description, :project_id))
-        add_tab_menu(@menutab)
+      #Redmine::MenuManager.map(:application_menu).delete(@menutab.label.to_sym) if Redmine::MenuManager.map(:application_menu).exists?(@menutab.label.to_sym)     
+      if @menutab.update(params.require(:menutab).permit(:wiki_type, :user_id, :project_id, :label, :external_link, :wiki_page, :content_page, :description, :project_id, :position, :move_to))
+        #add_tab_menu(@menutab)
         flash[:notice] = l(:notice_successful_update)
         redirect_to :action => 'list'
       else
@@ -34,7 +33,7 @@ class MenutabsController < ApplicationController
     if request.post?
     	@menutab = Menutab.new(params.require(:menutab).permit(:wiki_type, :user_id, :project_id, :label, :external_link, :wiki_page, :content_page, :description, :project_id))
       if @menutab.save then
-      	add_tab_menu(@menutab)
+      	#add_tab_menu(@menutab)
         flash[:notice] = l(:notice_successful_create)
         redirect_to :controller => 'menutabs', :action => 'list'
       end
@@ -42,12 +41,12 @@ class MenutabsController < ApplicationController
   end
 
   def edit
-    Redmine::MenuManager.map(:application_menu).delete(@menutab.label.to_sym) if Redmine::MenuManager.map(:application_menu).exists?(@menutab.label.to_sym)
-    #if request.put? and @menutab.update_attributes(params[:menutab])
-    #  flash[:notice] = l(:notice_successful_update)
-    #  add_tab_menu(@menutab)
-    #  redirect_to :controller => 'menutabs', :action => 'list'
-    #end
+    #Redmine::MenuManager.map(:application_menu).delete(@menutab.label.to_sym) if Redmine::MenuManager.map(:application_menu).exists?(@menutab.label.to_sym)
+    if request.patch? and @menutab.update(params.require(:menutab).permit(:wiki_type, :user_id, :project_id, :label, :external_link, :wiki_page, :content_page, :description, :project_id))
+      flash[:notice] = l(:notice_successful_update)
+      #add_tab_menu(@menutab)
+      redirect_to :controller => 'menutabs', :action => 'list'
+    end
   end
   
   def view
@@ -58,7 +57,7 @@ class MenutabsController < ApplicationController
   def forward_wiki_page
     wiki_page = params[:wiki_page]
     target_project = params[:target_project]
-    redirect_to :controller => 'wiki', :action => 'index', :id => target_project, :page => wiki_page
+    redirect_to :controller => 'projects', :action => 'index', :id => target_project, :page => wiki_page
   end
   
   def external_page
@@ -70,7 +69,7 @@ class MenutabsController < ApplicationController
   def remove
     @menutab = Menutab.find(params[:id])
     Menutab.destroy(params[:id])
-    Redmine::MenuManager.map(:application_menu).delete(@menutab.label.to_sym) if Redmine::MenuManager.map(:application_menu).exists?(@menutab.label.to_sym)
+    #Redmine::MenuManager.map(:application_menu).delete(@menutab.label.to_sym) if Redmine::MenuManager.map(:application_menu).exists?(@menutab.label.to_sym)
     redirect_to :controller => 'menutabs', :action => 'list'
   end
 
